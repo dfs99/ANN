@@ -6,9 +6,6 @@ __pycache__/
 # C extensions
 *.so
 .vscode
-./salida
-salida
-salida1
 
 
 # Distribution / packaging

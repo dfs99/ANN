@@ -67,7 +67,7 @@ int main(){
             for (int j = 0; j < data[i].size()-1; ++j) {
                 y += (weights[j] * data[i][j]);
             }
-            /* Applying Delta Rule */
+            /* Applying Delta Rule*/
             if (y != data[i].back()){                     
                 double difference =  (data[i].back() - y);
                 for (int k = 0; k < weights.size(); ++k){

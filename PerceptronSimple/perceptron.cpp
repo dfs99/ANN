@@ -31,7 +31,7 @@ int main(){
 
     auto start = std::chrono::system_clock::now();
     for (int i = 0; i < entries.size(); ++i) {
-        double y = 0.0;                              /* Initialize 'y' to store values    */
+        double y = 0.0;                              /* Initialize 'y' to store values   */
         for (int j = 0; j < entries[i].size()-1; ++j) {
             y += (weights[j] * entries[i][j]);
         }

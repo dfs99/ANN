@@ -6,6 +6,7 @@ __pycache__/
 # C extensions
 *.so
 .vscode
+./salida*
 
 # Distribution / packaging
 .Python

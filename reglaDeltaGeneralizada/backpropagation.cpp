@@ -9,8 +9,8 @@
 
 #define LAYERS 3
 #define LEARNING_RATE 0.1
-#define CYCLES 1
-#define ACTIVATION_FUNCTION "RELU"
+#define CYCLES 100
+#define ACTIVATION_FUNCTION "SIGMOID"
 #define ENTRY_DIMENSION 6
 #define OUTPUT_DIMENSION 3
 
@@ -171,8 +171,9 @@ int main(){
                             net[i][j].output += (net[i-1][k].output * weight_matrices[i][k][j]);
                         }
                     }
-                    // applying activation function nly in hidden layers.
-                    if (i != LAYERS-2){
+                    // todo: aqui decimos si se activan todas las neuronas o no.
+                    // todo: En este caso, si LAYERS-2, solo las hidden; si LAYERS-1 todas.
+                    if (i != LAYERS-1){
                         net[i][j].output = activation_function(net[i][j].output);
                     }
                 }
@@ -215,9 +216,9 @@ int main(){
             // calculate an entry error and store it.
             double error_i = 0;
             for (int i = 0; i < topology[LAYERS-1] ; ++i){
-                error_i += ( desired_output[i] - net[LAYERS-2][i].output); 
+                error_i += pow(( desired_output[i] - net[LAYERS-2][i].output), 2); 
             }
-            errors.push_back(pow(error_i, 2));
+            errors.push_back((0.5 * error_i));
             cout << "error: " << error_i << endl;
         }
         

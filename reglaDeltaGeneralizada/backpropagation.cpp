@@ -9,7 +9,7 @@
 
 #define LAYERS 3
 #define LEARNING_RATE 0.1
-#define CYCLES 100
+#define CYCLES 50
 #define ACTIVATION_FUNCTION "SIGMOID"
 #define ENTRY_DIMENSION 6
 #define OUTPUT_DIMENSION 3
@@ -219,7 +219,7 @@ int main(){
                 error_i += pow(( desired_output[i] - net[LAYERS-2][i].output), 2); 
             }
             errors.push_back((0.5 * error_i));
-            cout << "error: " << error_i << endl;
+            //cout << "error: " << error_i << endl;
         }
         
         // Evaluar el error total.
@@ -230,17 +230,18 @@ int main(){
         mce_per_epoch[c] = total_sum / errors.size();
         // vaciar los errores almacenados.
         errors.clear();
-        cout << "MCE at epoch <"<< c << "> :" << mce_per_epoch[c] << endl;
+        //cout << "MCE at epoch <"<< c << "> :" << mce_per_epoch[c] << "\n";
     }
 
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double>duration = end - start;
-    auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
-    std::cout << "Elapsed time training the net:\t" << time << " ns " << std::endl;
+    auto time_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
+    auto time_s = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+    std::cout << "Elapsed time training the net:\t" << time_ns << " ns " << std::endl;
+    std::cout << "Elapsed time training the net:\t" << time_s << " s " << std::endl;
 
 
     // Print values: 
-
     // print weights
     for (int i = 0; i < LAYERS-1; ++i){
         cout << "weight Matrix: " << endl;
@@ -262,13 +263,13 @@ int main(){
 
     // free memory
     for (int i = 0; i < LAYERS-1; ++i){
-        delete net[i];
-        for (int j = 0; j < topology[i]; ++j){
+        
+        for (int j = 0; j < topology[i]+1; ++j){
             delete [] weight_matrices[i][j];
         }
-        delete weight_matrices[i];
+        delete [] weight_matrices[i];
+        delete [] net[i];
     }
- 
 
     return 0;
 }

@@ -2,17 +2,20 @@
 #include <vector>
 #include <array>
 #include <memory>
-#include "CSVReaderANN.hpp"
+#include "../headers/CSVReaderANN.hpp"
 
 int main(){
     std::cout << "Funciona????\n";
     try{
-        CSVReaderANN parser {"robots1.csv", 6 ,3};
-        std::cout << "dimensiones: " << parser.get_input_dimension() << " " << parser.get_output_dimension() << "\n";
-        for (size_t i = 0; i < 5; ++i){
-            std::cout << "dimension:" << parser.ref_to_examples_->size() << " \n";
+        CSVReaderANN parser {"../robots_copy_data.csv", 6 ,3};
+        //std::cout << "dimensiones: " << parser.get_input_dimension() << " " << parser.get_output_dimension() << "\n";
+        for (size_t i = 0; i < parser.ref_to_examples_.get()->size(); ++i){
+                std::cout << "patron: " << i << ": ";
             for (size_t j = 0; j < parser.ref_to_examples_.get()->operator[](i).inputs.size(); ++j){
                 std::cout << parser.ref_to_examples_.get()->operator[](i).inputs[j] << " ";
+            }
+            for (size_t j = 0; j < parser.ref_to_examples_.get()->operator[](i).desired.size(); ++j){
+                std::cout << parser.ref_to_examples_.get()->operator[](i).desired[j] << " ";
             }
             std::cout << "\n";
         }

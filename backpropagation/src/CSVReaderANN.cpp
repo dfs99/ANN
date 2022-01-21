@@ -18,9 +18,7 @@ CSVReaderANN::CSVReaderANN(std::string filename, int input_dimension, int output
     // get first line to remove data labels.
     getline(ifs, line);
     size_t counter;
-    // todo: solucionar el eof
-    while(!ifs.eof()){
-        getline(ifs, line);
+    while(ifs >> line){
         std::stringstream ss(line);
         ExampleLabeled<double> current_example;
         counter = 0;

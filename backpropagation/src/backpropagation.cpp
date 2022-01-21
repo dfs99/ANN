@@ -139,16 +139,13 @@ int main(int argc, char *argv[]){
         std::cout << "\n";
     }
 
-    // todo: algo de aqui peta!
+    
     /*
     
         Represent the net.
 
     */
-    /*array<int, num_layers> topology;
-    for (size_t i = 0; i < neurons_per_layer.size(); ++i){
-        topology[i] = neurons_per_layer[i];
-    }*/
+    
     vector<Neuron*> net;
     vector<double**> weight_matrices;
     vector<double> errors;  // almacena todos los errores cometidos por los patrones para 1 ciclo.
@@ -185,11 +182,26 @@ int main(int argc, char *argv[]){
     }
 
     // Imprimir valores de la funcion de pesos y células.
+    array<double, 7> M1 = {0.84, 0.39, 0.78, 0.79, 0.91, 0.19, 0.33};
+    array<double , 2> M2_1 = {0.76, 0.47};
+    array<double , 2> M2_2 = {0.27, 0.62};
+    array<double , 2> M2_3 = {0.55, 0.36};
+    
     for (int i = 0; i < num_layers-1; ++i){
         cout << "weight Matrix: " << endl;
         for (int j = 0; j < neurons_per_layer[i]+1; ++j){
             for (int k = 0; k < neurons_per_layer[i+1]; ++k){
-                cout << weight_matrices[i][j][k] << " ";
+                //cout << setprecision(15) << weight_matrices[i][j][k] << " ";
+                if (i == 0){
+                    weight_matrices[i][j][k] = M1[j];
+                }else if (i == 1 && k == 0){
+                    weight_matrices[i][j][k] = M2_1[j];
+                } else if (i == 1 && k == 1){
+                    weight_matrices[i][j][k] = M2_2[j];
+                }else if (i == 1 && k == 2){
+                    weight_matrices[i][j][k] = M2_3[j];
+                }
+                cout << setprecision(15) << weight_matrices[i][j][k] << " ";
             }
             cout << endl;
         }
@@ -220,6 +232,7 @@ int main(int argc, char *argv[]){
                             //cout << "tamaño patron entrada: " << parser.ref_to_examples_.get()->operator[](p).inputs.size() << "\n";
                             if (k == parser.ref_to_examples_.get()->operator[](p).inputs.size()){
                                 //cout << "input<" << 1 << "> * w<" << weight_matrices[i][k][j] << "> ";
+                                // umbral
                                 net[i][j].output += weight_matrices[i][k][j];
                             }else{
                                 //cout << "input<" << parser.ref_to_examples_.get()->operator[](p).inputs[k] << "> * w<" << weight_matrices[i][k][j] << "> ";
@@ -259,7 +272,12 @@ int main(int argc, char *argv[]){
                         //cout << "obteniendo deltas capa salida.\n";
                         //cout << "deseado: " << desired_output[j] << " salida: " << net[i-1][j].output << " derivada, func act: " << delta_activation_function(net[i-1][j].output, activation_func) << "\n";
                         //cout << "deseado: " << parser.ref_to_examples_.get()->operator[](p).desired[j]  << "\n";
-                        net[i-1][j].delta = ((parser.ref_to_examples_.get()->operator[](p).desired[j] - net[i-1][j].output) * delta_activation_function(net[i-1][j].output, activation_func));
+                        
+                        //net[i-1][j].delta = ((parser.ref_to_examples_.get()->operator[](p).desired[j] - net[i-1][j].output) * delta_activation_function(net[i-1][j].output, activation_func));
+                        
+                        // obtenido - deseado
+                        net[i-1][j].delta = ((net[i-1][j].output - parser.ref_to_examples_.get()->operator[](p).desired[j]) * delta_activation_function(net[i-1][j].output, activation_func));
+
                         //cout << "valor final delta: " << net[i-1][j].delta << "\n";
                     }else{
                         //cout << "Paso2-2\n";
@@ -284,19 +302,19 @@ int main(int argc, char *argv[]){
                         if (j == neurons_per_layer[i]){
                             //cout << "peso: " << weight_matrices[i][j][k]; 
                             //cout << " lr(" << lr << ") + delta(" << net[i][k].delta << "): " << (lr * net[i][k].delta);
-                            weight_matrices[i][j][k] += (lr * net[i][k].delta);
+                            weight_matrices[i][j][k] -= (lr * net[i][k].delta);
                             //cout << " resultado: " << weight_matrices[i][j][k] << endl;
                         }else{
                             // update weights.
                             if (i == 0){
                                 //cout << "peso: " << weight_matrices[i][j][k]; 
                                 //cout << " lr ("<< lr << ") + entrada("<< input[j] << ") + delta capa destino("<< net[i][k].delta <<") : " << (lr * input[j] * net[i][k].delta);
-                                weight_matrices[i][j][k] += (lr * parser.ref_to_examples_.get()->operator[](p).inputs[j] * net[i][k].delta);
+                                weight_matrices[i][j][k] -= (lr * parser.ref_to_examples_.get()->operator[](p).inputs[j] * net[i][k].delta);
                                 //cout << " resultado: " << weight_matrices[i][j][k] << endl;
                             }else{
                                 //cout << "peso: " << weight_matrices[i][j][k]; 
                                 //cout << " lr ("<< lr << ") + salida capa anterior("<< net[i-1][j].output << ") + delta capa destino("<< net[i][k].delta <<") : " << (lr * net[i-1][j].output * net[i][k].delta);
-                                weight_matrices[i][j][k] += (lr * net[i-1][j].output * net[i][k].delta);
+                                weight_matrices[i][j][k] -= (lr * net[i-1][j].output * net[i][k].delta);
                                 //cout << " resultado: " << weight_matrices[i][j][k] << endl;
                             }
                         }
@@ -312,15 +330,19 @@ int main(int argc, char *argv[]){
                 error_i += pow(( parser.ref_to_examples_.get()->operator[](p).desired[i] - net[num_layers-2][i].output), 2);
                 //cout << "aumentando error: " << error_i << "\n";
             }
-            errors.push_back(error_i*1/2);
+            // TODO: AQUI LO Q VEO ES Q EL ERROR DE UN PATRON UNICO LO Q HACE ES DIVIDIR ENTRE EL
+            // Nº DE SALIDAS TAMBIÉN. Además, veo q no tienen en cuenta el 1/2 y el python la matriz
+            // de pesos me sale ligeramente distinta.
+            errors.push_back(error_i * 0.5);
             //cout << "error almacenado: " << errors.at(0) << "\n";
-            //cout << "error: " << error_i << endl;
+            //cout << "error: " << error_i*1/2 << endl;
         }
+        // Esto de aqui no se hace asi.
         /*cout << "Evaluar error final\n";
         cout << "dimensiones: " << parser.ref_to_examples_.get()->size() << "\n";
         cout << "dimensiones error: " << errors.size() << "\n";
         cout << "prueba: " << parser.ref_to_examples_.get()->operator[]((parser.ref_to_examples_.get()->size() - 1)).desired[0] << "\n";
-        cout << "prueba errores: " << errors[errors.size() - 1] << "\n";*/
+        cout << "prueba errores: " << errors[errors.size() - 1] << "\n";
         // Evaluar el error total.
         double total_sum = 0;
         for (size_t q = 0; q < errors.size(); q++){
@@ -328,13 +350,13 @@ int main(int argc, char *argv[]){
             //cout << "error patron <" << q << "> : " << errors[q] << "\n"; 
             //cout << "tamaño: " << errors.size() << "\n";
             total_sum += errors[q];
-            //cout << "total acumulado:" << total_sum << "\n";
+            cout << "total acumulado:" << total_sum << "\n";
         }
         //cout << "aqui";
-        mse_per_epoch[c] = total_sum / errors.size();
+        mse_per_epoch.push_back(total_sum / errors.size());
         // vaciar los errores almacenados.
         errors.clear();
-        cout << "MSE at epoch <"<< c << "> :" << mse_per_epoch[c] << "\n";
+        cout << "MSE at epoch <"<< c << "> :" << mse_per_epoch[c] << "\n";*/
     }
 
     auto end = std::chrono::system_clock::now();
@@ -344,17 +366,17 @@ int main(int argc, char *argv[]){
     std::cout << "Elapsed time training the net:\t" << time_ns << " ns " << std::endl;
     std::cout << "Elapsed time training the net:\t" << time_s << " s " << std::endl;
 
-    double min = *min_element(mse_per_epoch.begin(), mse_per_epoch.end());
-    cout << "Minimum error generated:\t" << min << endl;
+    /*double min = *min_element(mse_per_epoch.begin(), mse_per_epoch.end());
+    cout << "Minimum error generated:\t" << min << endl;*/
 
-    /*
+    
     // Print values: 
     // print weights
     for (int i = 0; i < num_layers-1; ++i){
         cout << "weight Matrix: " << endl;
         for (int j = 0; j < neurons_per_layer[i]+1; ++j){
             for (int k = 0; k < neurons_per_layer[i+1]; ++k){
-                cout << weight_matrices[i][j][k] << " ";
+                cout << setprecision(8) << weight_matrices[i][j][k] << " ";
             }
             cout << endl;
         }
@@ -366,7 +388,7 @@ int main(int argc, char *argv[]){
         for (int j = 0; j < neurons_per_layer[i+1]; ++j){
             cout << "cell <"<< i << "," << j <<">: " << net[i][j].delta << " : " << net[i][j].output << endl;
         }
-    }*/
+    }
 
     /*
     

@@ -3,12 +3,10 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
-#include <iostream>
 
 const char* NON_EXISTING_FILE = "Error: csv does not exists in the directory.";
 
 CSVReaderANN::CSVReaderANN(std::string filename, int input_dimension, int output_dimension){
-    std::cout << "valor devuelto funcion: " << CSVReaderANN::exists(filename) << "\n";
     filename_ = CSVReaderANN::exists(filename) == true ? filename : throw CSVReaderANNException(NON_EXISTING_FILE);
     input_dimension_ = input_dimension;
     output_dimension_ = output_dimension;

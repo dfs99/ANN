@@ -17,12 +17,20 @@ BIN = $(BIN_DIR)/main
 
 all: $(BIN)
 
-$(BIN) : $(OBJS)
+$(BIN) : $(OBJS) $(BIN_DIR)
 	$(CPP)	$(CPPFLAGS) $(OPTIMIZATION) $(CPPVERSION) -o $@ $(OBJS)
 
-$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp $(HEADERS)
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp $(HEADERS) $(OBJ_DIR)
 	$(CPP) $(CPPVERSION) -c $< -o $@
+
+$(BIN_DIR):
+	mkdir bin
+
+$(OBJ_DIR):
+	mkdir objs
 
 clean:
 	rm -r $(OBJS)
 	rm -r $(BIN)
+	rmdir bin
+	rmdir objs
